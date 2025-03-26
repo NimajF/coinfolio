@@ -1,8 +1,12 @@
 import axios from "axios";
 
-export async function favoritesHandlerPost(userId, coinId) {
+export async function favoritesHandlerPost(userId, coinId, coinImage) {
   try {
-    const res = await axios.post("/api/favorites", { userId, coinId });
+    const res = await axios.post("/api/favorites", {
+      userId,
+      coinId,
+      coinImage,
+    });
     return { success: true, data: res.data };
   } catch (error) {
     return {
@@ -47,5 +51,19 @@ export async function getUser(userId) {
       success: false,
       message: error.response?.data?.message || "Failed to retrieve user",
     };
+  }
+}
+
+export async function updateUserPortfolio(portfolio, userId) {
+  try {
+    await fetch("/api/user/portfolio", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId, portfolio }),
+    });
+  } catch (error) {
+    console.error("Error updating portfolio in DB:", error);
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
-import axios from "axios";
+import { UserPortfolioContext } from "@/contexts/userContext";
+import { motion } from "framer-motion";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -21,17 +22,12 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await signIn("credentials", {
+      await signIn("credentials", {
         username: formData.username,
         password: formData.password,
         redirect: false,
       });
-
-      if (res.ok) {
-        return router.push("/");
-      } else {
-        console.error("Login failed:", res.error); // Imprime el error si ocurrió un fallo
-      }
+      router.push("/coins");
     } catch (error) {
       console.error("Error during login:", error.message);
     }
@@ -45,10 +41,13 @@ export default function Login() {
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
       }}
-      className="flex items-center justify-center min-h-screen bg-gray-900"
+      className="-mt-5 min-h-screen flex items-center justify-center bg-gray-900"
     >
-      <div
-        className="w-full backdrop-blur-xl max-w-md bg-gray-800 p-9 pb-6 rounded-2xl shadow-2xl"
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="w-full backdrop-blur-xl max-w-md max-md:-mt-40 bg-gray-800 p-9 pb-6 rounded-2xl max-md:rounded-none shadow-2xl"
         style={{ background: `#1e293b71` }}
       >
         <h2 className="text-2xl font-semibold text-white text-center mb-7">
@@ -111,7 +110,7 @@ export default function Login() {
             </a>
           </p>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 }

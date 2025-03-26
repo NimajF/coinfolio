@@ -6,18 +6,18 @@ export async function POST(req) {
   await connectDB();
 
   try {
-    const { userId, coinId } = await req.json();
+    const { userId, coinId, coinImage } = await req.json();
 
-    if (!userId || !coinId) {
+    if (!userId || !coinId || !coinImage) {
       return NextResponse.json(
-        { success: false, message: "userId and coin required" },
+        { success: false, message: "userId, coinId, and coinImage required" },
         { status: 400 }
       );
     }
 
     const updatedUser = await user.findByIdAndUpdate(
       userId,
-      { $addToSet: { favorites: coinId } },
+      { $addToSet: { favorites: { coinId, coinImage } } },
       { new: true }
     );
     return NextResponse.json(
@@ -48,13 +48,11 @@ export async function DELETE(req) {
         { status: 400 }
       );
     }
-
     const updatedUser = await user.findByIdAndUpdate(
       userId,
-      { $pull: { favorites: coinId } },
+      { $pull: { favorites: { coinId: coinId } } },
       { new: true }
     );
-
     return NextResponse.json(
       { success: true, favorites: updatedUser.favorites },
       { status: 200 }

@@ -57,7 +57,7 @@ export default function AboutPage() {
                 damping: 10,
               }}
               style={{ boxShadow: "inset 0 1px 0 0 #ffffff0d" }}
-              className="bg-gradient-to-tl from-slate-900 to-indigo-900 bg-opacity-35 p-3 rounded-xl shadow-lg hover:bg-slate-700 cursor-default hover:shadow-indigo-900 text-center transition hover:!scale-105 hover:shadow-2xl duration-300"
+              className="bg-gradient-to-br from-indigo-500 to-black p-3 rounded-xl shadow-lg hover:bg-slate-700 cursor-default hover:shadow-indigo-900 text-center transition hover:!scale-105 hover:shadow-2xl duration-300"
             >
               <Image
                 src={card.image}
@@ -77,7 +77,7 @@ export default function AboutPage() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 2.5, duration: 0.8 }}
-          className="text-4xl mt-10 mb-5 lg:w-1/3 bg-gradient-to-r from-indigo-600 via-cyan-500 to-indigo-950 p-3 rounded-lg shadow-indigo-950 shadow-xl "
+          className="text-4xl mt-10 mb-5 lg:w-1/3 bg-gradient-to-r from-indigo-500 to-indigo-950 p-3 rounded-lg shadow-indigo-950 shadow-xl "
         >
           Why use Coinfolio?
         </motion.p>

@@ -8,16 +8,8 @@ export default function ExchangeListPage() {
     document.title = "Exchanges - Coinfolio";
   }, []);
   return (
-    <div className="pt-10 flex flex-col w-full xl:w-full mx-auto min-h-screen text-white py-8 px-4 ">
+    <div className="pt-10 bg-gradient-to-br via-indigo-950 to-indigo-900 from-[#0e0e11] flex flex-col w-full xl:w-full mx-auto min-h-screen text-white py-8 px-4 ">
       <div className="p-20 self-center max-sm:p-2 xl:w-4/5">
-        {/* <img
-          src="https://images.unsplash.com/photo-1639754390580-2e7437267698?q=80&w=2041&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          alt="Charts"
-          className="float-right w-2/5 rounded-xl ml-4 mb-4 shadow-lg opacity-70"
-        /> 
-        bg-gradient-to-r from-slate-950 via-slate-950 to-indigo-950
-        */}
-
         <motion.p
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
