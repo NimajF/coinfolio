@@ -1,5 +1,5 @@
 import localFont from "next/font/local";
-import { Inter, Roboto } from "next/font/google";
+import { Inter, Roboto, Poppins, Nunito, Montserrat } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Provider from "@/components/Provider";
@@ -22,7 +22,26 @@ const inter = Inter({
 });
 const roboto = Roboto({
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["300", "400", "500", "700", "900"],
+  variable: "--font-secondary",
+});
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-heading",
+});
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-body",
+});
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-accent",
 });
 
 export const metadata = {
@@ -37,7 +56,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${inter.className} antialiased custom-scrollbar min-h-screen flex flex-col bg-gradient-to-tl bg-[#10101a] `} // from-slate-950 via-slate-900 to-indigo-950
+        className={`${geistSans.variable} ${geistMono.variable} ${inter.className} ${roboto.variable}
+          ${poppins.variable}
+          ${nunito.variable}
+          ${montserrat.variable} antialiased custom-scrollbar min-h-screen flex flex-col bg-gradient-to-tl bg-[#10101a] `} // from-slate-950 via-slate-900 to-indigo-950
       >
         <Provider>
           <Navbar />

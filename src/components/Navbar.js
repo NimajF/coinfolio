@@ -2,8 +2,10 @@
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import { useState } from "react";
 import { FaUserLarge } from "react-icons/fa6";
 import { CiLogout } from "react-icons/ci";
+import { HiMenu, HiX } from "react-icons/hi";
 
 const navigation = [
   { name: "Home", href: "/coins", current: false },
@@ -20,29 +22,39 @@ export default function Navbar() {
   const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
-  return (
-    <div
-      className="sm:mx-auto z-10 fixed top-0 w-full border-b border-[#1b1b20] px-2 max-sm:px-0 sm:px-6 lg:px-8 backdrop-blur-lg bg-opacity-80 shadow-sm"
-      style={
-        pathname === "/"
-          ? { border: "none", backgroundColor: "rgba(31, 65, 143, 0.082)" }
-          : { backgroundColor: "#10101a" }
-      }
-    >
-      <div className="relative flex h-16 items-center justify-between">
-        <div className="absolute inset-y-0 left-0 flex items-center"></div>
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-        <div className="flex flex-1 items-center justify-center max-sm:justify-start  max-sm:ml-2 sm:items-stretch sm:justify-start">
-          <div className="flex flex-shrink-0 items-center">
+  return (
+    <>
+      <div
+        className="sm:mx-auto z-50 fixed top-0 w-full border-b border-white/10 px-4 sm:px-6 lg:px-8 backdrop-blur-xl bg-opacity-90 shadow-md"
+        style={
+          pathname === "/"
+            ? {
+                border: "none",
+                backgroundColor: "#14142d35",
+                backdropFilter: "blur(20px)",
+              }
+            : {
+                backgroundColor: "rgba(16, 16, 26, 0.85)",
+                backdropFilter: "blur(20px)",
+              }
+        }
+      >
+        <div className="relative flex h-16 items-center justify-between max-w-7xl mx-auto">
+          {/* Logo */}
+          <div className="flex items-center">
             <img
               alt="Coinfolio logo"
               onClick={() => router.push("/")}
               src="/images/favicon-32x32.png"
-              className="h-8 w-auto cursor-pointer hover:scale-125 transition max-sm:mr-4 max-sm:ml-1"
+              className="h-8 w-auto cursor-pointer hover:scale-110 transition-transform duration-200"
             />
           </div>
-          <div className="sm:ml-6 sm:block">
-            <div className="flex space-x-4 max-md:space-x-1">
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:block">
+            <div className="flex items-center space-x-1">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
@@ -50,9 +62,9 @@ export default function Navbar() {
                   aria-current={item.current ? "page" : undefined}
                   className={classNames(
                     item.href === pathname
-                      ? "bg-indigo-700 text-indigo-500"
-                      : "text-gray-300 hover:text-indigo-400",
-                    "rounded-md px-3 py-2 transition-all duration-100 text-sm text-slate-200"
+                      ? "bg-indigo-600/20 text-indigo-400 border-indigo-400/30"
+                      : "text-gray-300 hover:text-indigo-300 hover:bg-white/5 border-transparent",
+                    "rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 border backdrop-blur-sm"
                   )}
                 >
                   {item.name}
@@ -61,35 +73,109 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* <SearchBar /> */}
-        </div>
-
-        <div className="flex items-center">
-          {session ? (
-            <>
-              <button
-                onClick={() => signOut()}
-                className="mr-3 text-lg font-bold text-gray-200 hover:text-indigo-500"
+          {/* Desktop Auth Section */}
+          <div className="hidden md:flex items-center space-x-3">
+            {session ? (
+              <>
+                <button
+                  onClick={() => signOut()}
+                  className="text-gray-300 hover:text-indigo-400 p-2 rounded-lg hover:bg-white/5 transition-all duration-200"
+                  title="Logout"
+                >
+                  <CiLogout className="w-5 h-5" />
+                </button>
+                <Link
+                  href={`/user/${session.user.username}`}
+                  className="relative rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 p-2.5 transition-all duration-200 shadow-lg hover:shadow-indigo-500/25"
+                  title="Profile"
+                >
+                  <FaUserLarge className="text-white w-4 h-4" />
+                </Link>
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-indigo-500/25"
               >
-                <CiLogout />
-              </button>
+                Log in
+              </Link>
+            )}
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="md:hidden flex items-center space-x-2">
+            {session && (
               <Link
                 href={`/user/${session.user.username}`}
-                className="relative rounded-full text-sm  max-sm:mr-10 bg-indigo-600 hover:bg-indigo-700 p-2 hover:text-white focus:outline-none shadow-lg"
+                className="relative rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-700 p-2 transition-all duration-200"
+                title="Profile"
               >
-                <FaUserLarge className="text-white" />
+                <FaUserLarge className="text-white w-4 h-4" />
               </Link>
-            </>
-          ) : (
-            <Link
-              href={"/login"}
-              className="relative mr-5 rounded-md text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 w-16 text-center p-2 hover:text-white focus:outline-none"
+            )}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="text-gray-300 hover:text-indigo-400 p-2 rounded-lg hover:bg-white/5 transition-all duration-200"
             >
-              Log in
-            </Link>
-          )}
+              {mobileMenuOpen ? (
+                <HiX className="w-6 h-6" />
+              ) : (
+                <HiMenu className="w-6 h-6" />
+              )}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Mobile menu */}
+      <div
+        className={classNames(
+          "md:hidden fixed top-16 left-0 w-full bg-gray-900/95 backdrop-blur-xl border-b border-white/10 transition-all duration-300 z-40",
+          mobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
+        )}
+      >
+        <div className="px-4 py-4 space-y-2">
+          {navigation.map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              onClick={() => setMobileMenuOpen(false)}
+              className={classNames(
+                item.href === pathname
+                  ? "bg-indigo-600/20 text-indigo-400 border-l-4 border-indigo-400"
+                  : "text-gray-300 hover:text-indigo-300 hover:bg-white/5 border-l-4 border-transparent",
+                "block px-4 py-3 text-base font-medium transition-all duration-200 rounded-r-lg"
+              )}
+            >
+              {item.name}
+            </Link>
+          ))}
+
+          {/* Mobile Auth Section */}
+          <div className="pt-4 border-t border-white/10 space-y-2">
+            {session ? (
+              <button
+                onClick={() => {
+                  signOut();
+                  setMobileMenuOpen(false);
+                }}
+                className="flex items-center space-x-3 w-full px-4 py-3 text-gray-300 hover:text-indigo-300 hover:bg-white/5 rounded-lg transition-all duration-200"
+              >
+                <CiLogout className="w-5 h-5" />
+                <span className="text-base font-medium">Logout</span>
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block w-full text-center bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200"
+              >
+                Log in
+              </Link>
+            )}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

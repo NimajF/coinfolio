@@ -67,3 +67,18 @@ export async function updateUserPortfolio(portfolio, userId) {
     console.error("Error updating portfolio in DB:", error);
   }
 }
+
+export async function deleteUserPortfolio(userId) {
+  try {
+    await fetch("/api/deletePortfolio", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId }),
+      
+    });
+  } catch (error) {
+    console.error("Error deleting portfolio in DB:", error);
+  }
+}

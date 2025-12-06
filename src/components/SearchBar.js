@@ -5,62 +5,91 @@ import { motion } from "framer-motion";
 
 export default function SearchBar() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const router = useRouter();
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      // Redirigir a la página de la moneda basada en el término de búsqueda
       router.push(`/coins/${searchTerm.trim().toLowerCase()}`);
     }
   };
 
   return (
-    <motion.form
-      initial={{ opacity: 0, y: -50 }}
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 1, duration: 0.1, ease: "easeOut" }}
-      onSubmit={handleSubmit}
-      className="max-w-2xl w-1/2 mx-auto mt-10 transition-all duration-500 focus:shadow-sky-800 shadow-xl max-md:w-3/4"
+      transition={{ delay: 0.5, duration: 0.6, ease: "easeOut" }}
+      className="max-w-2xl w-full mx-auto mt-8 px-4"
     >
-      <label
-        htmlFor="default-search"
-        className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
-      >
-        Search
-      </label>
-      <div className="relative">
-        <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-          <svg
-            className="w-4 h-4 text-gray-500 dark:text-gray-400"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 20 20"
-          >
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+      <form onSubmit={handleSubmit} className="relative group">
+        {/* Background with gradient border effect */}
+        <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 rounded-2xl opacity-20 group-hover:opacity-40 transition duration-300 blur-sm"></div>
+        
+        <div className="relative bg-[#1a1a2e]/80 backdrop-blur-xl rounded-2xl border border-[#2a2a3e] overflow-hidden">
+          <div className="flex items-center">
+            <div className="pl-6 pr-3 py-4">
+              <motion.svg
+                animate={{
+                  scale: isFocused ? 1.1 : 1,
+                  rotate: isFocused ? 5 : 0
+                }}
+                transition={{ duration: 0.2 }}
+                className="w-5 h-5 text-slate-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </motion.svg>
+            </div>
+            
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              placeholder="Search cryptocurrencies... (e.g., bitcoin, ethereum)"
+              className="flex-1 bg-transparent text-white placeholder-slate-400 text-lg py-4 pr-4 focus:outline-none font-medium"
             />
-          </svg>
+            
+            <motion.button
+              type="submit"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="mr-3 px-6 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-indigo-500/25"
+            >
+              Search
+            </motion.button>
+          </div>
+          
+          {/* Bottom accent line */}
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: isFocused ? "100%" : "0%" }}
+            transition={{ duration: 0.3 }}
+            className="h-0.5 bg-gradient-to-r from-indigo-500 to-purple-500"
+          />
         </div>
-        <input
-          type="search"
-          id="default-search"
-          className="block focus:shadow-indigo-900 shadow-md focus:outline-none w-full p-4 ps-10 text-md font-mono text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-[#121216] dark:border-[#2b2b33] dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 light:focus:border-blue-500 dark:focus:border-indigo-600 transition-all duration-150 hover:border-slate-500 hover:shadow-lg hover:shadow-indigo-900"
-          placeholder="Search coins 💎"
-          onChange={(e) => setSearchTerm(e.target.value)}
-          required
-        />
-        <button
-          type="submit"
-          className="text-white absolute end-2.5 bottom-2.5 bg-indigo-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-blue-800"
+        
+        {/* Search suggestions hint */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: isFocused ? 1 : 0, y: isFocused ? 0 : 10 }}
+          transition={{ duration: 0.2 }}
+          className="absolute top-full left-0 right-0 mt-2 text-center"
         >
-          Search
-        </button>
-      </div>
-    </motion.form>
+          <p className="text-sm text-slate-500">
+            Popular: <span className="text-indigo-400 cursor-pointer hover:text-indigo-300">Bitcoin</span>, <span className="text-purple-400 cursor-pointer hover:text-purple-300">Ethereum</span>, <span className="text-blue-400 cursor-pointer hover:text-blue-300">Solana</span>
+          </p>
+        </motion.div>
+      </form>
+    </motion.div>
   );
 }

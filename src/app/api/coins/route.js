@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&category=layer-1&order=market_cap_desc&per_page=20&price_change_percentage=1h%2C24h%2C7d";
@@ -10,6 +12,7 @@ export async function GET() {
         accept: "application/json",
         "x-cg-demo-api-key": process.env.NEXT_PUBLIC_COIN_API_KEY,
       },
+      next: { revalidate: 60 }
     };
 
     const response = await fetch(url, options);

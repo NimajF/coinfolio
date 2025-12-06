@@ -10,10 +10,10 @@ function Chart({ symbol }) {
       initial={{ opacity: 0, scale: 0.9, x: 100, delay: 5 }}
       animate={{ opacity: 1, scale: 1, x: 0 }}
       transition={{ duration: 1 }}
-      className="w-4/5 max-md:w-full bg-opacity-20 max-md:rounded-none self-center h-[75vh] lg:h-[85vh] p-4 pb-8 bg-slate-800 rounded-lg rounded-tl-none shadow-xl z-0"
+      className="max-md:w-full text-slate-400 bg-opacity-20 max-md:rounded-none self-center h-[75vh] lg:h-[85vh] p-4 pb-8 rounded-lg rounded-tl-none z-0"
     >
       <AdvancedRealTimeChart
-        theme="dark"
+        theme="light"
         autosize
         symbol={`BINANCE:${symbol.toUpperCase()}USDT`}
         locale="en"

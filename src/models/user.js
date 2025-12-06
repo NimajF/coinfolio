@@ -50,6 +50,14 @@ const userSchema = new mongoose.Schema({
     required: false,
     default: [],
   },
+  bio: {
+    type: String,
+    default: "",
+  },
+  image: {
+    type: String,
+    default: "",
+  },
 });
 
 export default mongoose.models.User || mongoose.model("User", userSchema);

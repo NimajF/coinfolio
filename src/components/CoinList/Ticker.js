@@ -40,13 +40,13 @@ export default function Ticker() {
         ref={containerRef}
         className="tradingview-widget-container__widget"
       ></div>
-      <div className="tradingview-widget-copyright">
+      <div className="tradingview-widget-copyright mb-2 mt-2">
         <a
           href="https://www.tradingview.com/"
           rel="noopener nofollow"
           target="_blank"
         >
-          <span className="text-indigo-500 text-sm italic">
+          <span className="text-slate-600 text-[12px] italic hover:text-indigo-500">
             Track all markets on TradingView
           </span>
         </a>

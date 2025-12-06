@@ -4,10 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
-import { IoTrendingUp, IoTrendingDown } from "react-icons/io5";
+import { IoTrendingUp, IoTrendingDown, IoArrowBack, IoAdd, IoTime } from "react-icons/io5";
 import { GoStar, GoStarFill } from "react-icons/go";
+import { HiOutlineExternalLink } from "react-icons/hi";
 import AddCoinModal from "@/components/AddCoinModal";
 import AddOldTransactionModal from "@/components/AddOldTransactionModal";
+import SpotOrderCalculator from "@/components/SpotOrderCalculator";
 import Spinner from "@/components/Spinner";
 import Toast from "@/components/Toast";
 import Chart from "@/components/Chart";
@@ -28,7 +30,6 @@ export default function CoinPage({ params }) {
   const [message, setMessage] = useState("");
   const [isFavorite, setIsFavorite] = useState(false);
   const router = useRouter();
-  const handleFavorite = () => {};
 
   useEffect(() => {
     const url = `https://api.coingecko.com/api/v3/coins/${id}`;
@@ -85,15 +86,15 @@ export default function CoinPage({ params }) {
 
   if (loading) {
     return (
-      <div className="h-screen flex flex-col flex-1 justify-center items-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#0a0a15] via-[#12121d] to-[#1a1a2e] flex flex-col justify-center items-center">
         <Spinner />
         <motion.p
           initial={{ opacity: 0, scale: 0.9, y: 100 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ delay: 2, duration: 0.5 }}
+          className="text-slate-400 mt-4 text-center max-w-md"
         >
-          If you see this message, don't worry, wait for the data fetching
-          cooldown!
+          Loading coin data... If this takes too long, we might be hitting API rate limits.
         </motion.p>
       </div>
     );
@@ -101,219 +102,394 @@ export default function CoinPage({ params }) {
 
   if (coin.error) {
     return (
-      <div className="flex justify-center items-center text-center h-screen">
-        <div className="border border-slate-700 border-md bg-slate-800 h-50 sm:w-1/2 lg:w-1/4 rounded-md p-5">
-          <h1 className="text-5xl mb-5 text-red-500"> Ups! </h1>
-          <p className="mb-9 text-slate-400">Error loading coin data!</p>
-          <Link
-            href="/"
-            className="p-2 px-3 bg-blue-500 rounded-md mt-10 w-36 hover:translate-x-2 hover:bg-blue-600"
+      <div className="min-h-screen bg-gradient-to-br from-[#0a0a15] via-[#12121d] to-[#1a1a2e] flex justify-center items-center">
+        <div className="text-center p-8">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-red-500/10 border border-red-500/20 rounded-2xl p-8 max-w-md"
           >
-            Home
-          </Link>
+            <h1 className="text-4xl mb-4 text-red-400">Oops!</h1>
+            <p className="mb-6 text-slate-400">Error loading coin data!</p>
+            <Link
+              href="/coins"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-500 hover:bg-indigo-600 rounded-xl transition-colors"
+            >
+              <IoArrowBack />
+              Back to Markets
+            </Link>
+          </motion.div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full flex flex-col p-8 pt-0 min-h-screen max-md:p-1 max-md:pt-5">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0a15] via-[#12121d] to-[#1a1a2e] text-white">
       {toastVisible && <Toast visible={toastVisible} message={message} />}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9, x: -100 }}
-        animate={{ opacity: 1, scale: 1, x: 0 }}
-        transition={{ duration: 0.3 }}
-        className="w-4/5 max-lg:w-5/6 max-md:w-full gap-2 bg-opacity-20 max-md:bg-opacity-25 flex flex-row self-center max-md:flex-col p-5 pt-10"
-      >
-        <div className="w-2/3 max-sm:w-full">
-          <div className="mb-1 rounded-md inline-block p-2">
-            <img
-              src={coin.image?.small}
-              alt={coin.name}
-              className="w-16 h-16 "
-            />
-          </div>
-          <button
-            onClick={handleAddFavorite}
-            className="absolute top-16 ml-4 text-lg group"
+      
+      {/* Header Section */}
+      <div className="relative overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 via-purple-500/5 to-blue-500/5" />
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-gradient-to-tr from-blue-500/10 to-cyan-500/10 rounded-full blur-3xl" />
+        
+        <div className="relative z-10 px-6 py-8 lg:px-12">
+          {/* Navigation */}
+          <motion.button
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            onClick={() => router.back()}
+            className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-8 group"
           >
-            {isFavorite ? (
-              <GoStarFill className="group-hover:text-yellow-400 text-yellow-400 group-hover:scale-110 text-lg transition-transform duration-200" />
-            ) : (
-              <GoStar className="group-hover:text-yellow-400 text-slate-400 group-hover:scale-110 text-lg transition-transform duration-200" />
-            )}
-          </button>
-          <div className="flex items-center space-x-4">
-            <h1 className="text-3xl font-bold">
-              {coin.name}{" "}
-              <span className="text-gray-400 font-light">(USD)</span>
-            </h1>
-            <button
-              className="font-semibold bg-transparent border border-green-600  hover:bg-green-500 hover:text-white hover:shadow-md hover:shadow-green-800 text-sm text-green-500 py-2 px-4 rounded-md transition-all"
-              onClick={() => setAddModalVisible(true)}
-            >
-              Add {coin.name}
-            </button>
-            <button
-              className="bg-transparent text-slate-300 text-sm py-2 px-4 rounded-md transition-all"
-              onClick={() => setOldTransactionModalVisible(true)}
-            >
-              Add old {coin.name} transactions
-            </button>
-          </div>
-          <button
-            className="absolute top-8 right-10 text-gray-500"
-            onClick={handleFavorite}
-          ></button>
-          <p className="text-md text-gray-400 uppercase">
-            {coin.symbol} - <i className="font-sans">{coin.genesis_date}</i>
-          </p>
-          <p className="text-gray-400 mb-2 text-sm">
-            {coin.categories.join(", ")}
-          </p>
-          <p className="text-lg">
-            Market Cap Rank:{" "}
-            <span className="bg-green-500 py-1 px-2 rounded-full font-bold">
-              {coin.market_cap_rank}
-            </span>
-          </p>
-          <div className="bg-[#181824] p-3 max-w-screen-md w-1/2 max-xl:w-full shadow-lg rounded-md mt-2">
-            <p className="text-md text-slate-100">
-              Price:{" "}
-              <span
-                className={`${
-                  coin.market_data.price_change_percentage_24h > 0
-                    ? "text-green-500"
-                    : "text-red-500"
-                }`}
+            <IoArrowBack className="group-hover:-translate-x-1 transition-transform" />
+            Back
+          </motion.button>
+
+          {/* Main Content Layout: 70% Main + 30% Trading Panel */}
+          <div className="flex flex-col xl:flex-row gap-8">
+            {/* Main Content - 70% */}
+            <div className="xl:w-[70%] space-y-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
               >
-                ${coin.market_data.current_price.usd}
-              </span>
-            </p>
-            <p className="text-md text-slate-100">
-              24h Change:{" "}
-              <span
-                className={`${
-                  coin.market_data.price_change_percentage_24h > 0
-                    ? "text-green-500"
-                    : "text-red-500"
-                }`}
-              >
-                {coin.market_data.price_change_percentage_24h.toFixed(2)}%{" "}
-                {coin.market_data.price_change_percentage_24h > 0 ? (
-                  <IoTrendingUp className="inline-block ml-1" size={25} />
-                ) : (
-                  <IoTrendingDown className="inline-block ml-1" size={25} />
+                {/* Coin Info */}
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="relative">
+                    <img
+                      src={coin.image?.large}
+                      alt={coin.name}
+                      className="w-16 h-16 lg:w-20 lg:h-20 rounded-full"
+                    />
+                    <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/30 to-purple-500/30 rounded-full blur-sm opacity-60" />
+                  </div>
+                  
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+                        {coin.name}
+                      </h1>
+                      <button
+                        onClick={handleAddFavorite}
+                        className="text-xl hover:scale-110 transition-transform"
+                      >
+                        {isFavorite ? (
+                          <GoStarFill className="text-yellow-400" />
+                        ) : (
+                          <GoStar className="text-slate-400 hover:text-yellow-400" />
+                        )}
+                      </button>
+                    </div>
+                    
+                    <div className="flex items-center gap-4 text-slate-400">
+                      <span className="text-lg font-roboto uppercase">{coin.symbol}</span>
+                      <span className="text-sm">•</span>
+                      <span className="text-sm">Rank #{coin.market_cap_rank}</span>
+                      {coin.genesis_date && (
+                        <>
+                          <span className="text-sm">•</span>
+                          <span className="text-sm">Since {coin.genesis_date}</span>
+                        </>
+                      )}
+                    </div>
+                    
+                    {coin.categories && coin.categories.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {coin.categories.slice(0, 3).map((category, index) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 bg-indigo-500/20 text-indigo-300 text-xs rounded-full border border-indigo-500/30"
+                          >
+                            {category}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Price Section */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="bg-[#1a1a2e]/60 backdrop-blur-sm border border-[#2a2a3e] rounded-2xl p-6"
+                  >
+                    <p className="text-slate-400 text-sm mb-2">Current Price</p>
+                    <p className="text-2xl lg:text-3xl font-bold font-roboto">
+                      ${coin.market_data?.current_price?.usd?.toLocaleString()}
+                    </p>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="bg-[#1a1a2e]/60 backdrop-blur-sm border border-[#2a2a3e] rounded-2xl p-6"
+                  >
+                    <p className="text-slate-400 text-sm mb-2">24h Change</p>
+                    <div className={`flex items-center gap-2 text-xl font-bold font-roboto ${
+                      coin.market_data?.price_change_percentage_24h > 0
+                        ? "text-green-400"
+                        : "text-red-400"
+                    }`}>
+                      <span>
+                        {coin.market_data?.price_change_percentage_24h > 0 ? "+" : ""}
+                        {coin.market_data?.price_change_percentage_24h?.toFixed(2)}%
+                      </span>
+                      {coin.market_data?.price_change_percentage_24h > 0 ? (
+                        <IoTrendingUp />
+                      ) : (
+                        <IoTrendingDown />
+                      )}
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="bg-[#1a1a2e]/60 backdrop-blur-sm border border-[#2a2a3e] rounded-2xl p-6"
+                  >
+                    <p className="text-slate-400 text-sm mb-2">24h Volume</p>
+                    <p className="text-xl font-bold font-roboto">
+                      ${coin.market_data?.total_volume?.usd?.toLocaleString()}
+                    </p>
+                  </motion.div>
+                </div>
+
+                {/* Action Buttons */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="flex flex-wrap gap-4 mb-8"
+                >
+                  <button
+                    onClick={() => setAddModalVisible(true)}
+                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 rounded-xl font-semibold transition-all transform hover:scale-105 shadow-lg"
+                  >
+                    <IoAdd />
+                    Add {coin.symbol?.toUpperCase()}
+                  </button>
+                  
+                  <button
+                    onClick={() => setOldTransactionModalVisible(true)}
+                    className="flex items-center gap-2 px-6 py-3 bg-[#1a1a2e]/80 border border-[#2a2a3e] hover:bg-[#2a2a3e]/80 rounded-xl font-semibold transition-all"
+                  >
+                    <IoTime />
+                    Add Historical Transaction
+                  </button>
+                </motion.div>
+
+                {/* Description Section - Moved here after action buttons */}
+                {coin.description?.en && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="mb-8"
+                  >
+                    <h2 className="text-2xl font-bold mb-4">About {coin.name}</h2>
+                    <div className="bg-[#1a1a2e]/40 backdrop-blur-sm border border-[#2a2a3e]/50 rounded-2xl p-6">
+                      <p className="text-slate-300 leading-relaxed">
+                        {coin.description.en.split(". ").slice(0, 3).join(". ")}
+                        {coin.description.en.split(". ").length > 3 ? "." : ""}
+                      </p>
+                    </div>
+                  </motion.div>
                 )}
-              </span>
-            </p>
-            <p className="text-md text-slate-100">
-              24h Price Change:{" "}
-              <span
-                className={`${
-                  coin.market_data.price_change_percentage_24h > 0
-                    ? "text-green-500"
-                    : "text-red-500"
-                }`}
-              >
-                $ {coin.market_data.price_change_24h.toFixed(3)}
-              </span>
-            </p>
-          </div>
-          <p className="transition-all duration-75 text-md mt-4 text-gray-300 max-md:pt-2 max-md:bg-slate-700 max-md:p-3 rounded-md">
-            {coin.description?.en
-              ? coin.description.en.split(". ")[0]
-              : "No description available."}
-          </p>
-        </div>
-        <div className="bg-[#0b0b0e] bg-opacity-80 p-6 rounded-lg border border-[#1f1f25]  w-full max-w-md mx-auto mt-8">
-          <h2 className="text-3xl text-slate-200 font-bold mb-4 text-center">
-            Statistics 📋
-          </h2>
-
-          <div className="space-y-4 max-md:p-0">
-            <div className="flex justify-between items-center border-b border-slate-800 py-2">
-              <span className="font-semibold text-gray-400">Market Cap 💰</span>
-              <span className="text-sm ">
-                ${coin.market_data.market_cap.usd.toLocaleString()}
-              </span>
+              </motion.div>
             </div>
 
-            <div className="flex justify-between items-center border-b border-slate-800 py-2">
-              <span className="font-semibold text-gray-400">
-                24h Volume 🔄{" "}
-              </span>
-              <span className="text-sm">
-                ${coin.market_data.total_volume.usd.toLocaleString()}
-              </span>
-            </div>
-
-            <div className="flex justify-between items-center border-b border-slate-800 py-2">
-              <span className="font-semibold text-gray-400">
-                Circulating Supply 🚀
-              </span>
-              <span className="text-sm">
-                {coin.market_data.circulating_supply.toLocaleString()}{" "}
-                {coin.symbol.toUpperCase()}
-              </span>
-            </div>
-
-            <div className="flex justify-between items-center border-b border-slate-800 py-2">
-              <span className="font-semibold text-gray-400">
-                Total Supply 🔋
-              </span>
-              <span className="text-sm">
-                {coin.market_data.total_supply
-                  ? coin.market_data.total_supply.toLocaleString()
-                  : "N/A"}{" "}
-                {coin.symbol.toUpperCase()}
-              </span>
-            </div>
-
-            <div className="flex justify-between items-center py-2">
-              <span className="font-semibold text-gray-400">Max Supply 🎯</span>
-              <span className="text-sm">
-                {coin.market_data.max_supply
-                  ? coin.market_data.max_supply.toLocaleString()
-                  : "N/A"}{" "}
-                {coin.symbol.toUpperCase()}
-              </span>
-            </div>
+            {/* Trading Panel - 30% */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.6 }}
+              className="xl:w-[30%]"
+            >
+              <div className="sticky top-24">
+                <SpotOrderCalculator coin={coin} />
+              </div>
+            </motion.div>
           </div>
         </div>
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 100, x: 100 }}
-        animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
-        transition={{ duration: 2 }}
-        className="bg-slate-700 bg-opacity-50 self-start max-w-64 inline-block px-4rounded-t-lg"
+      </div>
+
+      {/* Stats Section - Full width */}
+      <motion.section
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+        className="px-6 lg:px-12 py-8"
       >
-        {/* <p className="text-2xl inline">
-          {coin.name} Chart <span className="text-2xl">🗠</span>
-        </p> */}
-      </motion.div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Market Statistics */}
+          <div className="lg:col-span-2">
+            <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+              📊 Market Statistics
+            </h3>
+            
+            <div className="bg-[#1a1a2e]/60 backdrop-blur-sm border border-[#2a2a3e] rounded-2xl p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center py-3 border-b border-[#2a2a3e]/50">
+                    <span className="text-slate-400">Market Cap</span>
+                    <span className="font-mono font-semibold">
+                      ${coin.market_data?.market_cap?.usd?.toLocaleString()}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center py-3 border-b border-[#2a2a3e]/50">
+                    <span className="text-slate-400">24h High</span>
+                    <span className="font-roboto font-semibold text-green-400">
+                      ${coin.market_data?.high_24h?.usd?.toLocaleString()}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center py-3">
+                    <span className="text-slate-400">24h Low</span>
+                    <span className="font-roboto font-semibold text-red-400">
+                      ${coin.market_data?.low_24h?.usd?.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center py-3 border-b border-[#2a2a3e]/50">
+                    <span className="text-slate-400">Circulating Supply</span>
+                    <span className="font-roboto font-semibold">
+                      {coin.market_data?.circulating_supply?.toLocaleString()} {coin.symbol?.toUpperCase()}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center py-3 border-b border-[#2a2a3e]/50">
+                    <span className="text-slate-400">Total Supply</span>
+                    <span className="font-roboto font-semibold">
+                      {coin.market_data?.total_supply 
+                        ? coin.market_data.total_supply.toLocaleString()
+                        : "N/A"
+                      } {coin.symbol?.toUpperCase()}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center py-3">
+                    <span className="text-slate-400">Max Supply</span>
+                    <span className="font-roboto font-semibold">
+                      {coin.market_data?.max_supply 
+                        ? coin.market_data.max_supply.toLocaleString()
+                        : "∞"
+                      } {coin.symbol?.toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-      <Chart symbol={coin.symbol} />
+          {/* Price Performance */}
+          <div>
+            <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+              📈 Price Performance
+            </h3>
+            
+            <div className="bg-[#1a1a2e]/60 backdrop-blur-sm border border-[#2a2a3e] rounded-2xl p-6">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400">1h</span>
+                  <span className={`font-roboto font-semibold ${
+                    coin.market_data?.price_change_percentage_1h_in_currency?.usd > 0
+                      ? "text-green-400"
+                      : "text-red-400"
+                  }`}>
+                    {coin.market_data?.price_change_percentage_1h_in_currency?.usd > 0 ? "+" : ""}
+                    {coin.market_data?.price_change_percentage_1h_in_currency?.usd?.toFixed(2) || 'N/A'}%
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400">7d</span>
+                  <span className={`font-roboto font-semibold ${
+                    coin.market_data?.price_change_percentage_7d > 0
+                      ? "text-green-400"
+                      : "text-red-400"
+                  }`}>
+                    {coin.market_data?.price_change_percentage_7d > 0 ? "+" : ""}
+                    {coin.market_data?.price_change_percentage_7d?.toFixed(2) || 'N/A'}%
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400">30d</span>
+                  <span className={`font-roboto font-semibold ${
+                    coin.market_data?.price_change_percentage_30d > 0
+                      ? "text-green-400"
+                      : "text-red-400"
+                  }`}>
+                    {coin.market_data?.price_change_percentage_30d > 0 ? "+" : ""}
+                    {coin.market_data?.price_change_percentage_30d?.toFixed(2) || 'N/A'}%
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400">1y</span>
+                  <span className={`font-roboto font-semibold ${
+                    coin.market_data?.price_change_percentage_1y > 0
+                      ? "text-green-400"
+                      : "text-red-400"
+                  }`}>
+                    {coin.market_data?.price_change_percentage_1y > 0 ? "+" : ""}
+                    {coin.market_data?.price_change_percentage_1y?.toFixed(2) || 'N/A'}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* Chart Section - Full width */}
+      <motion.section
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8 }}
+        className="px-6 lg:px-12 py-8"
+      >
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold mb-2">Price Chart</h2>
+          <p className="text-slate-400">Historical price data for {coin.name}</p>
+        </div>
+        
+        <div className="bg-[#1a1a2e]/40 backdrop-blur-sm border border-[#2a2a3e]/50 rounded-2xl p-6">
+          <Chart symbol={coin.symbol} />
+        </div>
+      </motion.section>
+
+      {/* Modals */}
       {addModalVisible && (
-      <AddCoinModal
-        modalVisible={addModalVisible}
-        setModalVisible={setAddModalVisible}
-        coin={coin}
-        setToastVisible={setToastVisible}
-        toastVisible={toastVisible}
-        infoAdded={setMessage}
-      />
-    )}
+        <AddCoinModal
+          modalVisible={addModalVisible}
+          setModalVisible={setAddModalVisible}
+          coin={coin}
+          setToastVisible={setToastVisible}
+          toastVisible={toastVisible}
+          infoAdded={setMessage}
+        />
+      )}
 
-    {oldTransactionModalVisible && (
-      <AddOldTransactionModal
-        setModalVisible={setOldTransactionModalVisible}
-        coin={coin}
-        setToastVisible={setToastVisible}
-        toastVisible={toastVisible}
-        infoAdded={setMessage}
-      />
-    )}
+      {oldTransactionModalVisible && (
+        <AddOldTransactionModal
+          setModalVisible={setOldTransactionModalVisible}
+          coin={coin}
+          setToastVisible={setToastVisible}
+          toastVisible={toastVisible}
+          infoAdded={setMessage}
+        />
+      )}
     </div>
   );
 }
