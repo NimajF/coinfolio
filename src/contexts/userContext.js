@@ -221,12 +221,26 @@ export const UserPortfolioProvider = ({ children }) => {
   //   return total;
   // };
 
+  const deleteCoin = (coinName) => {
+    setPortfolio((prevPortfolio) => {
+      const updatedCoins = { ...prevPortfolio.coins };
+      delete updatedCoins[coinName];
+      return { ...prevPortfolio, coins: updatedCoins };
+    });
+  }
+
+  const deletePorfolio = () => {
+    setPortfolio(defaultPortfolio);
+    localStorage.removeItem(`userPortfolio_${session?.user?._id}`);
+  }
+
   return (
     <UserPortfolioContext.Provider
       value={{
         portfolio,
         setPortfolio,
         addOrUpdateCoin,
+        deleteCoin,
         symbols,
         pnl,
         prices,
